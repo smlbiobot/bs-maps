@@ -2,3 +2,4 @@ root: /Users/sml/Dropbox/git/bs-maps
 maps_output: /Users/sml/Dropbox/git/bs-maps/dist/maps
 csv:
   maps: /Users/sml/Dropbox/git/bs-maps/lib/bs-csv/assets/csv_logic/maps.csv
+  locations: /Users/sml/Dropbox/git/bs-maps/lib/bs-csv/assets/csv_logic/locations.csv

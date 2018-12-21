@@ -22,7 +22,34 @@ class Config():
         return self.config.csv[name]
 
 
-def parse_maps(config=None):
+
+def parse_locations():
+    csv_path = config.get_csv_path('locations')
+    global locations
+    locations = []
+    with open(csv_path) as f:
+        reader = csv.DictReader(f)
+        for index, row in enumerate(reader):
+            if index < 1:
+                continue
+            location = row
+            location['key'] = 1500000 + index -1
+
+            locations.append(location)
+
+    import json
+    print(json.dumps(locations))
+
+def get_location(name=None):
+    global locations
+    for loc in locations:
+        if loc.get('Name') == name:
+            return loc
+
+    return None
+
+
+def parse_maps():
     csv_path = config.get_csv_path('maps')
     maps = []
 
@@ -38,25 +65,40 @@ def parse_maps(config=None):
                 if map is not None:
                     maps.append(map)
 
+                name = row.get('Group').replace('_', '')
+                if 'bank' in name.lower():
+                    name = name[4:].title()
+                loc = get_location(name=name) or {}
+                key = loc.get('key')
+
                 map = dict(
-                    name=row.get('Group'),
-                    blocks=[]
+                    name=name,
+                    blocks=[],
+                    key=key
                 )
 
             map['blocks'].append(row.get('Data'))
 
+
     # save blocks as individual txt files
     for map in maps:
-        path = os.path.join(config.config.maps_output, map.get('name') + '.txt')
+        name = map.get('name')
+        key = map.get('key') or ''
+        path = os.path.join(
+            config.config.maps_output,
+            f"{key}-{name}.txt"
+        )
         with open(path, 'w') as f:
             blocks = '\n'.join(map.get('blocks'))
             f.write(blocks)
 
 
-def main(config=None):
-    parse_maps(config=config)
+def main():
+    parse_locations()
+    parse_maps()
 
 
 if __name__ == '__main__':
-    cfg = Config('./config.yml')
-    main(config=cfg)
+    locations = None
+    config = Config('./config.yml')
+    main()
